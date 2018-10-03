@@ -1,0 +1,4 @@
+---
+- hosts: indexers
+  roles:
+    - splunk-indexer-cl
