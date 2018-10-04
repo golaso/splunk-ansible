@@ -20,6 +20,7 @@
     - "{{ firewall_ports }}"
   when: (ansible_os_family == "RedHat") and
         ({{ firewalld_state }} == 'yes')
+  notify: Firewalld restart
 
 - name: Install Splunk
   yum:
