@@ -9,7 +9,7 @@
     service: firewalld
     state: restarted
   when: (ansible_os_family == "RedHat") and
-        ({{ firewalld_state }} == 'yes')
+        ( firewalld_state == 'yes')
 
 - name: Open ports on firewall
   firewalld:
@@ -19,7 +19,7 @@
   with_items:
     - "{{ firewall_ports }}"
   when: (ansible_os_family == "RedHat") and
-        ({{ firewalld_state }} == 'yes')
+        ( firewalld_state == 'yes')
   notify: Firewalld restart
 
 - name: Install Splunk
