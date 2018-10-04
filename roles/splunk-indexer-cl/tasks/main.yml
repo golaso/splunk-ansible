@@ -54,4 +54,4 @@
   command: "./splunk edit cluster-config -mode master -replication_factor {{ replication_factor_value }} -search_factor {{ search_factor_value }} -secret {{ secret_value }} -cluster_label {{ cluster_label_value }}"
   args:
     chdir: "{{ splunk_base_path }}/bin"
-  when: "inventory_hostname in groups['masters']"
+  when: ( "inventory_hostname in groups['masters']" )
