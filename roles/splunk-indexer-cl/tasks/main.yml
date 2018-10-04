@@ -34,7 +34,7 @@
 
 - name: Preparing Admin user config
   template:
-    src: ./templates/user-seed.conf.j2
+    src: ./templates/user-seed.conf.admin.j2
     dest: "{{ splunk_base_path }}/etc/system/local/user-seed.conf"
     owner: splunk
     group: splunk
