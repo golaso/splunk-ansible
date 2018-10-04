@@ -1,4 +1,5 @@
 ---
-- hosts: indexers
+- hosts: mrg-fake-splunk
+  sudo: yes
   roles:
     - splunk-indexer-cl

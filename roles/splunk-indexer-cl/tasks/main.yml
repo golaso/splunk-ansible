@@ -8,7 +8,7 @@
   register: firewalld_installed
   ignore_errors: true
   changed_when: false
-when: ansible_os_family == "RedHat" and firewall_disable_firewalld
+#when: ansible_os_family == "RedHat" and firewall_disable_firewalld
 
 - name: open tcp 80
   firewalld:
@@ -64,10 +64,10 @@ when: ansible_os_family == "RedHat" and firewall_disable_firewalld
     permanent: true
     state: enabled
 
-- name: copy splunk rpm file to server
-  copy:
-     src: package.rpm
-     dest: /tmp/splunk-7.1.2-a0c72a66db66-linux-2.6-x86_64.rpm
+#- name: copy splunk rpm file to server
+#  copy:
+#     src: package.rpm
+#     dest: /tmp/splunk-7.1.2-a0c72a66db66-linux-2.6-x86_64.rpm
 
 - name: install splunk package
   yum:
@@ -75,7 +75,9 @@ when: ansible_os_family == "RedHat" and firewall_disable_firewalld
      state: present
 
 - name: start splunk
-  command: /opt/splunk/bin/splunk start --accept-license
+  command: ./splunk start --accept-license -auth admin:Splunky##! arg1
+  args:
+    chdir: /opt/splunk/bin/
   register: splunk-start
 
 - name: enable splunk on boot
