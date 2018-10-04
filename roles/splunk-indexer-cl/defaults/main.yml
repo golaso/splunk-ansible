@@ -24,4 +24,4 @@ splunk_admin_hashed_password: '$6$0K61gvg5nYUYUYvh$9c9/4iF445cnN7E5lvj0H4w6jnWtO
 replication_factor_value: '3'
 search_factor_value: '2'
 secret_value: 'TestSplunkInstallation'
-cluster_label_value: Spl_TST_Indexer'
+cluster_label_value: 'Spl_TST_Indexer'
