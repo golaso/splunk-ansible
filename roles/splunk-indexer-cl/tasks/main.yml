@@ -2,14 +2,15 @@
   systemd:
     service: firewalld
     enabled: "{{ firewalld_state }}"
-  when: (ansible_os_family == "RedHat")
+  #when: (ansible_os_family == "RedHat")
 
 - name: Start firewalld service
   systemd:
     service: firewalld
     state: restarted
-  when: (ansible_os_family == "RedHat") and
+  #when: (  == "RedHat") and
         ( firewalld_state == 'yes')
+  when: ( firewalld_state == 'yes')
 
 - name: Open ports on firewall
   firewalld:
@@ -18,8 +19,9 @@
     state: enabled
   with_items:
     - "{{ firewall_ports }}"
-  when: (ansible_os_family == "RedHat") and
+ # when: (ansible_os_family == "RedHat") and
         ( firewalld_state == 'yes')
+  when: ( firewalld_state == 'yes')
   notify: Firewalld restart
 
 - name: Install Splunk
@@ -28,7 +30,7 @@
      state: present
   with_items:
    - "{{ splunk_packages_rpm }}" 
-  when: (ansible_os_family == "RedHat")
+  #when: (ansible_os_family == "RedHat")
 
 - name: Preparing Admin user config
   template:
