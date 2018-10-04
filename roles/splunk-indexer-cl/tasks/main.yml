@@ -9,7 +9,7 @@
     service: firewalld
     state: restarted
   #when: (  == "RedHat") and
-        ( firewalld_state == 'yes')
+  #      ( firewalld_state == 'yes')
   when: ( firewalld_state == 'yes')
 
 - name: Open ports on firewall
@@ -20,7 +20,7 @@
   with_items:
     - "{{ firewall_ports }}"
  # when: (ansible_os_family == "RedHat") and
-        ( firewalld_state == 'yes')
+ #       ( firewalld_state == 'yes')
   when: ( firewalld_state == 'yes')
   notify: Firewalld restart
 
@@ -49,3 +49,9 @@
   command: "./splunk enable boot-start"
   args:
     chdir: "{{ splunk_base_path }}/bin"
+
+- name: Setup master node
+  command: "./splunk edit cluster-config -mode master -replication_factor {{ replication_factor_value }} -search_factor {{ search_factor_value }} -secret {{ secret_value }} -cluster_label {{ cluster_label_value }}"
+  args:
+    chdir: "{{ splunk_base_path }}/bin"
+  when: "ansible_host in groups['masters']"

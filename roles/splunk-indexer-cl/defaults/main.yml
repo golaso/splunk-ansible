@@ -16,5 +16,12 @@ firewalld_state: 'yes'
 splunk_packages_rpm:
  - /tmp/splunk-7.1.2-a0c72a66db66-linux-2.6-x86_64.rpm
 
+splunk_base_path: '/opt/splunk'
+
 splunk_admin_username: 'admin'
 splunk_admin_hashed_password: '$6$0K61gvg5nYUYUYvh$9c9/4iF445cnN7E5lvj0H4w6jnWtOgtgcJnYuMjwV7OlFzStLn32zLVkSHT8CUccYFXoYmZHC2T4t5sRfYvh80'
+
+replication_factor_value: '3'
+search_factor_value: '2'
+secret_value: 'TestSplunkInstallation'
+cluster_label_value: Spl_TST_Indexer'
