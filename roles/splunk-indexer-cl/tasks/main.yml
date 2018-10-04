@@ -1,93 +1,48 @@
-- name: Test ping
-  ping:
+- name: Enable firewalld service
+  systemd:
+    service: firewalld
+    enabled: "{{ firewalld_state }}"
+  when: (ansible_os_family == "RedHat")
 
-- name: Check if firewalld package is installed (on RHEL).
-  shell: yum list installed firewalld
-  args:
-    warn: false
-  register: firewalld_installed
-  ignore_errors: true
-  changed_when: false
-#when: ansible_os_family == "RedHat" and firewall_disable_firewalld
+- name: Start firewalld service
+  systemd:
+    service: firewalld
+    state: restarted
+  when: (ansible_os_family == "RedHat") and
+        ({{ firewalld_state }} == 'yes')
 
-- name: open tcp 80
+- name: Open ports on firewall
   firewalld:
-    port: 80/tcp
+    port: "{{ item }}/tcp"
     permanent: true
     state: enabled
+  with_items:
+    - "{{ firewall_ports }}"
+  when: (ansible_os_family == "RedHat") and
+        ({{ firewalld_state }} == 'yes')
 
-- name: open tcp 88
-  firewalld:
-    port: 88/tcp
-    permanent: true
-    state: enabled
-
-- name: open tcp 89
-  firewalld:
-    port: 89/tcp
-    permanent: true
-    state: enabled
-
-- name: open tcp 8000
-  firewalld:
-    port: 8000/tcp
-    permanent: true
-    state: enabled
-
-- name: open tcp 8089
-  firewalld:
-    port: 8089/tcp
-    permanent: true
-    state: enabled
-
-- name: open tcp 8065
-  firewalld:
-    port: 8065/tcp
-    permanent: true
-    state: enabled
-
-- name: open tcp 8080
-  firewalld:
-    port: 8080/tcp
-    permanent: true
-    state: enabled
-
-- name: open tcp 8191
-  firewalld:
-    port: 8191/tcp
-    permanent: true
-    state: enabled
-
-- name: open tcp 9997
-  firewalld:
-    port: 9997/tcp
-    permanent: true
-    state: enabled
-
-#- name: copy splunk rpm file to server
-#  copy:
-#     src: package.rpm
-#     dest: /tmp/splunk-7.1.2-a0c72a66db66-linux-2.6-x86_64.rpm
-
-- name: install splunk package
+- name: Install Splunk
   yum:
-     name: /tmp/splunk-7.1.2-a0c72a66db66-linux-2.6-x86_64.rpm
+     name: "{{ item }}"
      state: present
+  with_items:
+   - "{{ splunk_packages_rpm }}" 
+  when: (ansible_os_family == "RedHat")
 
-- name: start splunk
-  command: ./splunk start --accept-license -auth admin:Splunky##! arg1
+- name: Preparing Admin user config
+  template:
+    src: ./templates/user-seed.conf.j2
+    dest: "{{ splunk_base_path }}/etc/system/local/user-seed.conf"
+    owner: splunk
+    group: splunk
+    mode: '0750'
+
+- name: First start Splunk
+  command: "./splunk start --accept-license --no-prompt --answer-yes"
   args:
-    chdir: /opt/splunk/bin/
-  register: splunk-start
+    chdir: "{{ splunk_base_path }}/bin"
 
-- name: enable splunk on boot
-  command: /opt/splunk/bin/splunk enable boot-start
-  register: splunk-enable
-
-#- name: add slave to cluster
-#  command: /opt/splunk/bin/splunk edit cluster-config -mode slave -master_uri https://10.200.7.102:8089 -replication_port 9997 -secret TestSplunkInstallation -auth admin:Splunky##!
-#  register: add slave
-
-- name: restart splunk
-  command: /opt/splunk/bin/splunk restart
-  register: splunk-restart
+- name: Enable splunk on boot
+  command: "./splunk enable boot-start"
+  args:
+    chdir: "{{ splunk_base_path }}/bin"
