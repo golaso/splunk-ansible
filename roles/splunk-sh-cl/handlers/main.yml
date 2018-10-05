@@ -1,0 +1,4 @@
+- name: Firewalld restart
+  systemd:
+    service: firewalld
+    state: restarted

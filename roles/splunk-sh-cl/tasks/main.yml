@@ -1,0 +1,72 @@
+- name: Enable firewalld service
+  systemd:
+    service: firewalld
+    enabled: "{{ firewalld_state }}"
+  #when: (ansible_os_family == "RedHat")
+
+- name: Start firewalld service
+  systemd:
+    service: firewalld
+    state: restarted
+  #when: (  == "RedHat") and
+  #      ( firewalld_state == 'yes')
+  when: ( firewalld_state == 'yes')
+
+- name: Open ports on firewall
+  firewalld:
+    port: "{{ item }}/tcp"
+    permanent: true
+    state: enabled
+  with_items:
+    - "{{ firewall_ports }}"
+ # when: (ansible_os_family == "RedHat") and
+ #       ( firewalld_state == 'yes')
+  when: ( firewalld_state == 'yes')
+  notify: Firewalld restart
+
+- name: Install Splunk
+  yum:
+     name: "{{ item }}"
+     state: present
+  with_items:
+   - "{{ splunk_packages_rpm }}" 
+  #when: (ansible_os_family == "RedHat")
+
+- name: Preparing Admin user config
+  template:
+    src: ./templates/user-seed.conf.admin.j2
+    dest: "{{ splunk_base_path }}/etc/system/local/user-seed.conf"
+    owner: splunk
+    group: splunk
+    mode: '0750'
+
+- name: First start Splunk
+  command: "./splunk start --accept-license --no-prompt --answer-yes"
+  args:
+    chdir: "{{ splunk_base_path }}/bin"
+
+- name: Enable splunk on boot
+  command: "./splunk enable boot-start"
+  args:
+    chdir: "{{ splunk_base_path }}/bin"
+
+- name: Setup master node
+  command: "./splunk edit cluster-config -mode master -replication_factor {{ replication_factor_value }} -search_factor {{ search_factor_value }} -secret {{ secret_value }} -cluster_label {{ indexer_cluster_label_value }} -auth {{ splunk_credentials }}"
+  args:
+    chdir: "{{ splunk_base_path }}/bin"
+  when: inventory_hostname in groups['masters']
+  tags:
+   - master_init
+
+- name: Setup slave node
+  command: "./splunk edit cluster-config -mode slave -master_uri {{ master_address }} -replication_port {{ replication_port_value }} -secret {{ secret_value }} -auth {{ splunk_credentials }}"
+  args:
+    chdir: "{{ splunk_base_path }}/bin"
+  when: inventory_hostname in groups['slaves']
+  tags:
+   - slave_init
+
+- name: Restart splunk
+  command: "./splunk restart"
+  args:
+    chdir: "{{ splunk_base_path }}/bin"
