@@ -58,6 +58,14 @@
   tags:
    - master_init
 
+- name: Restart splunk
+  command: "./splunk restart"
+  args:
+    chdir: "{{ splunk_base_path }}/bin"
+  when: inventory_hostname in groups['masters']
+  tags:
+   - master_init
+
 - name: Setup slave node
   command: "./splunk edit cluster-config -mode slave -master_uri {{ master_address }} -replication_port {{ replication_port_value }} -secret {{ secret_value }} -auth {{ splunk_credentials }}"
   args:
@@ -70,3 +78,6 @@
   command: "./splunk restart"
   args:
     chdir: "{{ splunk_base_path }}/bin"
+  when: inventory_hostname in groups['slaves']
+  tags:
+   - slave_init
