@@ -3,3 +3,8 @@
   sudo: yes
   roles:
     - splunk-indexer-cl
+
+- hosts: mrg-fake-splunk
+  sudo: yes
+  roles:
+    - splunk-indexer-cl
