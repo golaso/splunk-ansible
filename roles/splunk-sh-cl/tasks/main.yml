@@ -12,16 +12,28 @@
   #      ( firewalld_state == 'yes')
   when: ( firewalld_state == 'yes')
 
-- name: Open ports on firewall
+- name: Open ports on deployers firewall
   firewalld:
     port: "{{ item }}/tcp"
     permanent: true
     state: enabled
   with_items:
-    - "{{ firewall_ports }}"
+    - "{{ firewall_deployer_ports }}"
  # when: (ansible_os_family == "RedHat") and
  #       ( firewalld_state == 'yes')
-  when: ( firewalld_state == 'yes')
+  when: ( firewalld_state == 'yes') and (inventory_hostname in groups['deployers'])
+  notify: Firewalld restart
+
+- name: Open ports on search heads nodes firewall
+  firewalld:
+    port: "{{ item }}/tcp"
+    permanent: true
+    state: enabled
+  with_items:
+    - "{{ firewall_sh_nodes_ports }}"
+ # when: (ansible_os_family == "RedHat") and
+ #       ( firewalld_state == 'yes')
+  when: ( firewalld_state == 'yes') and (inventory_hostname in groups['sh_nodes'])
   notify: Firewalld restart
 
 - name: Install Splunk
@@ -50,23 +62,21 @@
   args:
     chdir: "{{ splunk_base_path }}/bin"
 
-- name: Setup master node
-  command: "./splunk edit cluster-config -mode master -replication_factor {{ replication_factor_value }} -search_factor {{ search_factor_value }} -secret {{ secret_value }} -cluster_label {{ indexer_cluster_label_value }} -auth {{ splunk_credentials }}"
-  args:
-    chdir: "{{ splunk_base_path }}/bin"
-  when: inventory_hostname in groups['masters']
-  tags:
-   - master_init
-
-- name: Setup slave node
-  command: "./splunk edit cluster-config -mode slave -master_uri {{ master_address }} -replication_port {{ replication_port_value }} -secret {{ secret_value }} -auth {{ splunk_credentials }}"
-  args:
-    chdir: "{{ splunk_base_path }}/bin"
-  when: inventory_hostname in groups['slaves']
-  tags:
-   - slave_init
+- name: Set credentials for clustering
+  template:
+    src: ./templates/server.conf.j2
+    dest: "{{ splunk_base_path }}/etc/system/local/server.conf"
+    owner: splunk
+    group: splunk
+    mode: '0750'
+  when: inventory_hostname in groups['deployers']
+  tags: 
+    - deployer_init
 
 - name: Restart splunk
   command: "./splunk restart"
   args:
     chdir: "{{ splunk_base_path }}/bin"
+  when: inventory_hostname in groups['deployers']
+  tags: 
+    - deployer_init

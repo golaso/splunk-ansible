@@ -1,5 +1,5 @@
 ## FIREWALL
-firewall_ports:
+firewall_deployer_ports:
  - 80
  - 88
  - 89
@@ -8,7 +8,14 @@ firewall_ports:
  - 8080
  - 8089
  - 8191
- - 9997
+
+firewall_sh_nodes_ports:
+ - 80
+ - 8065
+ - 8080
+ - 8089
+ - 8191
+ - 34567
 
 firewalld_state: 'yes'
 
@@ -21,10 +28,11 @@ splunk_base_path: '/opt/splunk'
 splunk_admin_username: 'admin'
 splunk_admin_hashed_password: '$6$0K61gvg5nYUYUYvh$9c9/4iF445cnN7E5lvj0H4w6jnWtOgtgcJnYuMjwV7OlFzStLn32zLVkSHT8CUccYFXoYmZHC2T4t5sRfYvh80'
 
-replication_factor_value: '3'
-search_factor_value: '2'
-secret_value: 'TestSplunkInstallation'
-indexer_cluster_label_value: 'Spl_TST_Indexer'
 splunk_credentials: 'admin:Splunky##!'
-replication_port_value: '9997'
-master_address: {{ https://group[masters][0].ansible_host:8089 }}
+
+## Search heads cluster
+
+sh_cluster_password: 'hg2qwe1l'
+sh_cluster_label: 'shcluster_tst'
+
+#master_address: {{ https://group[masters][0].ansible_host:8089 }}
