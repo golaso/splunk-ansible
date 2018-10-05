@@ -35,4 +35,16 @@ splunk_credentials: 'admin:Splunky##!'
 sh_cluster_password: 'hg2qwe1l'
 sh_cluster_label: 'shcluster_tst'
 
-#master_address: {{ https://group[masters][0].ansible_host:8089 }}
+deployer_address: "https://{{ hostvars[groups['masters'][0]]['ansible_default_ipv4']['address'] }}:8089"
+sh_node_address: "https://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:8089"
+replication_port_value: '34567'
+replication_factor_value: '2'
+
+sh_servers_list: '"https://10.200.6.72:8089,https://10.200.6.76:8089,https://10.200.6.83:8089"'
+
+ #"https://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:8089"
+
+#sh_servers_list: "{{ groups['sh_nodes'] | map('extract', hostvars, ['ansible_ssh_host']) | join(':8089,') }}:8089"
+
+
+

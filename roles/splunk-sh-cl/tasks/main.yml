@@ -73,10 +73,34 @@
   tags: 
     - deployer_init
 
-- name: Restart splunk
+- name: Restart splunk on deployer
   command: "./splunk restart"
   args:
     chdir: "{{ splunk_base_path }}/bin"
   when: inventory_hostname in groups['deployers']
   tags: 
     - deployer_init
+
+- name: Setup seacrh head cluster node
+  command: "./splunk init shcluster-config -auth {{ splunk_credentials }} -mgmt_uri {{ sh_node_address }} -replication_port {{ replication_port_value }} -replication_factor {{ replication_factor_value }} -conf_deploy_fetch_url {{ deployer_address }} -secret {{ sh_cluster_password }} -shcluster_label {{ sh_cluster_label }}"
+  args:
+    chdir: "{{ splunk_base_path }}/bin"
+  when: inventory_hostname in groups['sh_nodes']
+  tags:
+   - sh_node_init
+
+- name: Restart splunk on search head node
+  command: "./splunk restart"
+  args:
+    chdir: "{{ splunk_base_path }}/bin"
+  when: inventory_hostname in groups['sh_nodes']
+  tags: 
+    - sh_node_init
+
+- name: Choose cluster captain
+  command: "./splunk bootstrap shcluster-captain -servers_list {{ sh_servers_list }} -auth {{ splunk_credentials }}"
+  args:
+    chdir: "{{ splunk_base_path }}/bin"
+  when: inventory_hostname in groups['sh_nodes'][0]
+  tags:
+    - sh_node_captain
