@@ -51,7 +51,7 @@
     chdir: "{{ splunk_base_path }}/bin"
 
 - name: Setup master node
-  command: "./splunk edit cluster-config -mode master -replication_factor {{ replication_factor_value }} -search_factor {{ search_factor_value }} -secret {{ secret_value }} -cluster_label {{ cluster_label_value }} -auth {{ splunk_credentials }}"
+  command: "./splunk edit cluster-config -mode master -replication_factor {{ replication_factor_value }} -search_factor {{ search_factor_value }} -secret {{ secret_value }} -cluster_label {{ indexer_cluster_label_value }} -auth {{ splunk_credentials }}"
   args:
     chdir: "{{ splunk_base_path }}/bin"
   when: inventory_hostname in groups['masters']
