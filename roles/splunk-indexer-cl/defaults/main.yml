@@ -27,4 +27,4 @@ secret_value: 'TestSplunkInstallation'
 indexer_cluster_label_value: 'Spl_TST_Indexer'
 splunk_credentials: 'admin:Splunky##!'
 replication_port_value: '9997'
-master_address: {{ https://group[masters][0].ansible_host:8089 }}
+master_address: "{{ https://hostvars[groups['masters'][0]][ansible_all_ipv4_addresses]:8089 }}"
