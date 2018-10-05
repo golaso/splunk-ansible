@@ -1,5 +1,6 @@
 ---
-- hosts: mrg-fake-splunk
+- hosts: search_heads
+  gather_facts: True
   sudo: yes
   roles:
-    - splunk-indexer-cl
+    - splunk-sh-cl

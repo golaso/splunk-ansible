@@ -35,7 +35,7 @@ splunk_credentials: 'admin:Splunky##!'
 sh_cluster_password: 'hg2qwe1l'
 sh_cluster_label: 'shcluster_tst'
 
-deployer_address: "https://{{ hostvars[groups['masters'][0]]['ansible_default_ipv4']['address'] }}:8089"
+deployer_address: "https://{{ hostvars[groups['deployers'][0]]['ansible_default_ipv4']['address'] }}:8089"
 sh_node_address: "https://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:8089"
 replication_port_value: '34567'
 replication_factor_value: '2'
